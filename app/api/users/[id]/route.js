@@ -1,9 +1,17 @@
 import connectDB from "@/config/db";
 import User from "@/models/User";
+import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-export async function GET(_ , {params}){ // bad habbit _
+export async function GET(req, {params}){ // bad habbit _ , _ID , good -> req 
     try {
+        const { userId } = getAuth(req);
+        if (!userId) {
+            return NextResponse.json(
+                { success: false, message: "Unauthorized" },
+                { status: 401 }
+            );
+        }
         await connectDB();
         const user = await User.findById(params._id);
         return NextResponse.json(user);
@@ -14,8 +22,15 @@ export async function GET(_ , {params}){ // bad habbit _
     }
 }
 
-export async function PUT(req, {params}){ // good habbit -> req
+export async function PUT(req, {params}){ 
     try {
+        const { userId } = getAuth(req);
+        if (!userId) {
+            return NextResponse.json(
+                { success: false, message: "Unauthorized" },
+                { status: 401 }
+            );
+        }
            await connectDB();
            const body = await req.json();
            const user = await User.findByIdAndUpdate(
@@ -36,8 +51,15 @@ export async function PUT(req, {params}){ // good habbit -> req
     }
 }
 
-export async function DELETE(_id , {params}){ // bad habbit _id
+export async function DELETE(req, {params}){ 
           try {
+            const { userId } = getAuth(req);
+            if (!userId) {
+                return NextResponse.json(
+                    { success: false, message: "Unauthorized" },
+                    { status: 401 } 
+                );
+            }
                    await connectDB();
                    const user = await User.findByIdAndDelete(params._id);
                      if (!user) {
