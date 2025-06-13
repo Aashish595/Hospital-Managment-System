@@ -1,6 +1,7 @@
 import { Webhook } from "svix";
 import connectDB from "@/config/db";
 import User from "@/models/User";
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 // POST route to handle Clerk 'user.created' webhook
@@ -14,11 +15,12 @@ export async function POST(req) {
 
   const payload = await req.text();
 
-  // Correctly extract the svix headers
+  // Correctly extract the svix headers using `headers()`
+  const headerList = headers();
   const headerPayload = {
-    "svix-id": req.headers.get("svix-id"),
-    "svix-timestamp": req.headers.get("svix-timestamp"),
-    "svix-signature": req.headers.get("svix-signature"),
+    "svix-id": headerList.get("svix-id"),
+    "svix-timestamp": headerList.get("svix-timestamp"),
+    "svix-signature": headerList.get("svix-signature"),
   };
 
   const wh = new Webhook(SIGNING_SECRET);
